@@ -1,0 +1,80 @@
+# Qa 
+#TODO dinamic previus month
+SELECT customer.name,
+	   orders.order_date,
+       COUNT(*) AS 'Number of orders'
+FROM customer
+JOIN orders 
+	ON customer.id = customer_id
+WHERE orders.order_date < '2022-07-01'
+AND orders.order_date >= '2022-06-01';
+
+#Qb
+#to do group by name of product
+SELECT product.name,
+	   order_product.qty
+FROM product
+JOIN order_product
+	ON product.code = order_product.product_code
+JOIN orders
+	ON orders.id = order_product.order_id
+WHERE orders.order_date >= '2020-01-01'
+GROUP BY product.name
+ORDER BY order_product.qty DESC
+LIMIT 1;
+
+
+#Qc
+SELECT ROUND(AVG(price_each),1) AS 'Average order value 21/9'
+FROM order_product
+JOIN orders
+ON orders.id = order_product.order_id
+WHERE orders.order_date >= '2021-09-01'
+and orders.order_date < '2021-10-01';
+
+#Qd
+SELECT orders.order_date AS 'Month', 
+	   ROUND(AVG(price_each),1) AS 'Min Avg'
+FROM order_product
+JOIN orders
+ON orders.id = order_product.order_id
+JOIN customer
+	ON customer.id = orders.customer_id
+JOIN employee
+	ON employee.id = customer.sales_rep_employee_num
+WHERE YEAR(orders.order_date)='2021'
+GROUP BY MONTH(orders.order_date)
+ORDER BY ROUND(AVG(price_each),1)
+LIMIT 1;
+
+
+#Qe
+SELECT orders.order_date AS 'Month',
+	   ROUND(AVG(price_each),1) AS 'Max Avg'
+FROM order_product
+JOIN orders
+ON orders.id = order_product.order_id
+JOIN customer
+	ON customer.id = orders.customer_id
+JOIN employee
+	ON employee.id = customer.sales_rep_employee_num
+WHERE YEAR(orders.order_date)='2021'
+GROUP BY MONTH(orders.order_date)
+ORDER BY ROUND(AVG(price_each),1) DESC
+LIMIT 1;
+
+#Qf
+SELECT office.code, office.city, sum(order_product.price_each) AS 'Sum payments'
+FROM office
+JOIN employee
+	ON employee.office_code = office.code
+LEFT JOIN customer
+	ON customer.sales_rep_employee_num = employee.id
+JOIN orders
+	ON orders.customer_id = customer.id
+JOIN order_product
+	ON order_product.order_id = orders.id
+GROUP BY office.code
+ORDER BY sum(order_product.price_each) DESC
+LIMIT 1;
+
