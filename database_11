@@ -1,0 +1,160 @@
+#create database 
+DROP DATABASE control_stores;
+CREATE DATABASE control_stores;
+USE control_stores;
+
+#create tables according the diagram and fill them 
+
+CREATE TABLE office(
+    code INTEGER(10) PRIMARY KEY NOT NULL,
+    city VARCHAR(255),
+    phone VARCHAR(255),
+    address1 VARCHAR(255),
+    address2 VARCHAR(255),
+    state VARCHAR(255),
+    country VARCHAR(255),
+    postal_code INTEGER(10),
+    territory VARCHAR(200)
+);
+INSERT INTO office(code,city,phone,address1,state,country,postal_code,territory) VALUES
+(10,'Tel-Aviv','03-123456','Dizengoff 1','center area','Israel',1111111,'center'),
+(20,'Hafia','04-123456','Moria 2','north area','Israel',2222222,'north'),
+(30,'Jerusalem','02-123456','hillel 3','Jerusalem area','Israel',3333333,'Jerusalem');
+#
+
+CREATE TABLE employee(
+    id INTEGER(10) PRIMARY KEY NOT NULL,
+    office_code INTEGER(10) NOT NULL,
+    report_to INTEGER(10) NOT NULL,
+    last_name VARCHAR(255),
+    first_name VARCHAR(255),
+    extansion VARCHAR(255),
+    email VARCHAR(255),
+    job_title VARCHAR(255),
+    FOREIGN KEY(report_to) REFERENCES employee(id),
+    FOREIGN KEY(office_code) REFERENCES office(code)
+);
+INSERT INTO employee(id,office_code,report_to,last_name,first_name,extansion,email,job_title) VALUES
+(1,10,1,'Levi','Tamir','short story about myself','tamirlevi09@gmail.com','CEO'),
+(2,20,1,'Hillel','Adi','about Adi','adi@gmail.com','Hafia_manager'),
+(3,30,1,'Matan','cohen','about matan','matan09@gmail.com','Jerusalem_manager');
+#
+CREATE TABLE customer(
+    id INTEGER(10) PRIMARY KEY NOT NULL,
+    sales_rep_employee_num INTEGER(10) NOT NULL,
+    name VARCHAR(255),
+    last_name VARCHAR(255),
+    first_name VARCHAR(255),
+    phone VARCHAR(255),
+    address1 VARCHAR(255),
+    address2 VARCHAR(255),
+    city VARCHAR(255),
+    state VARCHAR(255),
+    postal_code INTEGER(10),
+    country VARCHAR(255),
+    credit_limit NUMERIC(19,0),
+    FOREIGN KEY(sales_rep_employee_num) REFERENCES employee(id)
+);
+INSERT INTO customer(id,sales_rep_employee_num,name,last_name,first_name,phone,address1,address2,city,state,postal_code,country,credit_limit) VALUES
+(111,2,'Ross Geler','Geler','Ross','050-123123','aaa street','bbb street','Hafia','north area',012,'Isreal','1000'),
+(222,2,'Monica Geler','Geler','Monica','052-231231','bbb street','ccc street','Hafia','north area',013,'Isreal','500'),
+(333,2,'Rachel Green','Green','Rachel','053-123321','bbb street','ccc street','Hafia','north area',013,'Isreal','300'),
+(444,3,'Joey Tribbiani','Tribbiani','Joey','055-789123','xxx street','bbb street','Jerusalem','Jerusalem area',456,'Isreal','700'),
+(555,3,'Chandler Bing','Bing','Chandler','056-654123','xxx street','bbb street','Jerusalem','Jerusalem area',456,'Isreal','2000'),
+(666,3,'Phebe Buffay','Buffay','Phebe','057-741123','ddd street','bbb street','Jerusalem','Jerusalem area',789,'Isreal','150');
+#
+CREATE TABLE payment(
+	check_name VARCHAR(255) PRIMARY KEY NOT NULL,
+    customer_id INTEGER(10) NOT NULL,
+    payment_date DATE,
+    amount NUMERIC(19,0),
+    FOREIGN key(customer_id) REFERENCES customer(id)
+);
+INSERT INTO payment(check_name,customer_id,payment_date,amount) VALUES
+('1111-1234-1234',111,'2020-01-01',10),
+('2222-1234-1234',222,'2020-01-01',10),
+('3333-1234-1234',333,'2020-01-01',10),
+('4444-1234-1234',444,'2020-01-01',10),
+('5555-1234-1234',555,'2020-01-01',10),
+('6666-1234-1234',666,'2020-01-01',10);
+
+CREATE TABLE orders(
+    id INTEGER(10) PRIMARY KEY NOT NULL,
+    customer_id INTEGER(10) NOT NULL,
+    order_date DATE,
+    required_date DATE,
+    shipped_date DATE,
+    #1-arrived
+    #0-on the way
+    status INTEGER(10),
+    comments VARCHAR(255),
+    FOREIGN KEY(customer_id) REFERENCES customer(id)
+);
+INSERT INTO orders(id,customer_id,order_date,required_date,shipped_date,status,comments) VALUES
+(001,111,'2020-01-01','2020-03-03','2020-02-02',1,'Ross order 1, Thanks guys'),
+(002,111,'2020-01-01','2020-03-03','2020-02-02',1,'Ross order 2,Thanks guys'),
+(003,111,'2020-01-01','2020-03-03','2020-02-02',1,'Ross order 3,Thanks guys'),
+(004,222,'2021-01-01','2021-03-03','2021-02-02',1,'Monica Geler order'),
+(005,333,'2021-01-01','2021-03-03','2021-02-02',1,'Rachel order 1'),
+(006,333,'2020-01-01','2020-03-03','2020-02-02',1,'Rachel order 2'),
+(007,555,'2021-09-01','2021-09-15','2021-09-09',1,'M.R Bing order 1'),
+(008,555,'2021-09-02','2021-09-16','2021-09-09',1,'M.R Bing order 2'),
+(009,555,'2021-08-01','2021-09-03','2021-08-02',1,'M.R Bing order 3'),
+(010,555,'2022-01-01','2022-03-03','2022-02-02',1,'M.R Bing order 4'),
+(011,555,'2022-06-021','2022-07-01','2022-06-025',1,'M.R Bing order 5');
+#
+
+CREATE TABLE product_line(
+    id INTEGER(10) PRIMARY KEY NOT NULL,
+    desc_in_text VARCHAR(255),
+    desc_in_html VARCHAR(255),
+    image VARCHAR(100)
+);
+INSERT INTO product_line (id,desc_in_text,desc_in_html,image) VALUES
+(1, 'the first product', 'www.desc/first.com', 'image_1'),
+(2, 'the second product', 'www.desc/second.com', 'image_2'),
+(3, 'the third product', 'www.desc/third.com', 'image_3');
+
+CREATE TABLE product(
+    code INTEGER(10) PRIMARY KEY NOT NULL,
+    product_line_id INTEGER(10) NOT NULL,
+    name VARCHAR(255),
+    #1-S, 2-M, 3-L
+    scale INTEGER(10),
+    vendor VARCHAR(255),
+    pdt_description VARCHAR(255),
+    qty_in_stock INTEGER(10),
+    buy_price NUMERIC(19,0),
+    # MSRP is manufacturer's suggested retail price
+    msrp VARCHAR(255),
+    FOREIGN KEY(product_line_id) REFERENCES product_line(id)
+);
+INSERT INTO product(code,product_line_id,name,scale,vendor,pdt_description,qty_in_stock,buy_price,msrp) VALUES
+(011,1,'abc',1,'Dany','blablabla',23,15,20),
+(012,2,'def',1,'Avi','asdasdasda',8,30,40);
+
+#
+
+CREATE TABLE order_product(
+    id INTEGER(10) PRIMARY KEY NOT NULL,
+    order_id INTEGER(10) NOT NULL,
+    product_code INTEGER(10) NOT NULL,
+    qty INTEGER(10),
+    price_each NUMERIC(19,0),
+    FOREIGN KEY(order_id) REFERENCES orders(id),
+    FOREIGN KEY(product_code) REFERENCES product(code)
+);
+INSERT INTO order_product(id,order_id,product_code,qty,price_each) VALUES
+(01,001,011,2,30),
+(02,002,011,2,30),
+(03,003,011,2,30),
+(04,004,011,1,15),
+(05,005,011,1,15),
+(06,006,011,1,15),
+(07,007,012,3,90),
+(08,008,012,2,60),
+(09,009,012,1,30),
+(10,010,012,1,30),
+(11,011,012,1,30);
+
+#end
