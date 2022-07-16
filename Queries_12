@@ -1,0 +1,40 @@
+#Q1
+SELECT customers.cust_id,
+	   DATE(CONCAT(ROUND(joining_year_month/ 100,0),'-',joining_year_month%100,'-','01')) AS 'Joining Date',
+       default_by_customer.default_int AS 'Inddication',
+       DATE(CONCAT(ROUND(year__month/ 100,0),'-',year__month%100,'-','01')) AS 'Date Indication'
+FROM customers
+LEFT JOIN default_by_customer
+	   ON default_by_customer.cust_id=customers.cust_id
+WHERE default_by_customer.default_int = 1
+AND PERIOD_DIFF(default_by_customer.year__month,customers.joining_year_month)<13;
+
+
+#Q2
+SELECT customers.cust_id,
+	   DATE(CONCAT(ROUND(joining_year_month/ 100,0),'-',joining_year_month%100,'-','01')) AS 'Joining Date',
+       default_by_customer.default_int AS 'Inddication',
+       DATE(CONCAT(ROUND(year__month/ 100,0),'-',year__month%100,'-','01')) AS 'Date Indication'
+FROM customers
+LEFT JOIN default_by_customer
+	   ON default_by_customer.cust_id=customers.cust_id
+WHERE default_by_customer.default_int = 1
+AND PERIOD_DIFF(202204,customers.joining_year_month)<13;
+
+#Q3
+#a
+SELECT CONCAT(ROUND(SUM(default_by_customer.default_int)*100/ (SELECT COUNT(customers.cust_id)
+												  FROM customers),1),'%')	AS 'Total percent whit default 1 indicator'
+FROM default_by_customer; 
+#b
+SELECT DATE(CONCAT(ROUND(year__month/ 100,0),'-',year__month%100,'-','01')) AS ' Indication date',
+       DATE(CONCAT(ROUND(joining_year_month/ 100,0),'-',joining_year_month%100,'-','01')) AS 'Joining Date',
+       CONCAT(ROUND(SUM(default_by_customer.default_int)/
+					(SELECT(COUNT(DISTINCT default_by_customer.cust_id)) FROM default_by_customer)*100,0),'%')
+					AS 'For each joining date separately'
+FROM default_by_customer
+JOIN customers
+       ON customers.cust_id = default_by_customer.cust_id
+GROUP BY 2;
+
+  
